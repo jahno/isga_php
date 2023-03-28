@@ -31,7 +31,7 @@ sudo apache2ctl configtest
 systemctl reload apache2
 #-creons notre base de donnee 
 mysql -u root -e 'CREATE DATABASE isga';
-mysql -u root -e 'CREATE USER jahno@localhost IDENTIFIED BY "jahno123"';
+mysql -u root -e 'CREATE USER jahno@localhost IDENTIFIED BY "jahno1"';
 mysql -u root -e 'GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER on isga.* TO jahno@localhost';
 mysql -u root isga < $CHEMIN/isga.sql
 mysql -u root -e 'FLUSH PRIVILEGES;'
