@@ -1,0 +1,37 @@
+#!/bin/bash
+CHEMIN='/var/www/isga'
+apt install apache2 git  mysql-server  php  libapache2-mod-php php-mysql  -y
+mkdir -p $CHEMIN
+chown -R www-data: $CHEMIN
+#creation rep temp 
+echo "**** Creation rep temp ****"
+mkdir -p /tmp/isg
+#-clone code php 
+echo "**** clone code php ****"
+cd /tmp/isg
+git clone https://github.com/jahno/isga_php.git  
+#-copie dans le bon repertoire 
+mv isga_php/* $CHEMIN
+
+#-creation vhosts
+cat <<EOT > /etc/apache2/sites-available/isga.conf
+<VirtualHost *:80>
+    DocumentRoot $CHEMIN
+    DirectoryIndex index.php
+</VirtualHost>
+
+EOT
+#-activons le nouvel hôte virtuel
+sudo a2ensite isga
+#-desactivons le site par defaut 
+sudo a2dissite 000-default
+#-testons si la config n'a pas d'erreur 
+sudo apache2ctl configtest
+#-on recharge 
+systemctl reload apache2
+#-creons notre base de donnee 
+mysql -u root -e 'CREATE DATABASE isga';
+mysql -u root -e 'CREATE USER jahno@localhost IDENTIFIED BY "jahno123"';
+mysql -u root -e 'GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER on isga.* TO jahno@localhost';
+mysql -u root isga < $CHEMIN/isga.sql
+mysql -u root -e 'FLUSH PRIVILEGES;'
